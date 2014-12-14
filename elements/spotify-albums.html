@@ -1,0 +1,78 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-item/core-item.html">
+
+<link rel="import" href="spotify-album.html">
+
+<polymer-element name="spotify-albums" attributes="artist selectedAlbum">
+    <template>
+        <style>
+        core-menu {
+            margin: 0px;
+        }
+
+        spotify-album:hover {
+            cursor: pointer;
+            background-color: #447a96;
+            color: white;
+        }
+
+        .core-selected spotify-album {
+            color: white;
+            background-color: #447a96;
+        }
+
+        .heading {
+            padding: 2px 5px;
+            color: #444;
+            background: #ddd;
+            font-weight: 100;
+        }
+        </style>
+
+        <template if="{{ items.length }}">
+            <div class="heading">Albums</div>
+        </template>
+
+        <core-menu selectedModel="{{ selectedModel }}"
+            on-core-selected="{{ setSelectedAlbum }}">
+            <template repeat="{{ item in items }}">
+                <core-item>
+                    <spotify-album
+                        album="{{ item }}"
+                        selected="{{ { selected: selected } | tokenList }}"></spotify-album>
+                </core-item>
+            </template>
+        </core-menu>
+
+        <core-ajax id="request"
+            url="{{ artist.href }}/albums"
+            params="{{ { country: 'GB' } }}"
+            handleAs="json"
+            response="{{ response }}"
+            on-core-response="{{ parse }}"></core-ajax>
+    </template>
+
+    <script>
+    Polymer({
+        artistChanged: function() {
+            this.shadowRoot.querySelector('core-menu').selected = -1;
+
+            if (this.artist) {
+                this.$.request.go();
+            }
+        },
+        setSelectedAlbum: function() {
+            this.selectedAlbum = this.selectedModel.item;
+        },
+        parse: function() {
+            this.items = this.response.items.filter(function(item) {
+                return item.album_type == 'album'
+            })
+
+            this.next = this.response.next;
+        }
+    })
+    </script>
+</polymer-element>

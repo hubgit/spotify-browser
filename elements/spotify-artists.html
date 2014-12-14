@@ -1,0 +1,77 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-item/core-item.html">
+
+<link rel="import" href="spotify-artist.html">
+
+<polymer-element name="spotify-artists" attributes="query selectedArtist">
+    <template>
+        <style>
+        core-menu {
+            margin: 0;
+        }
+
+        spotify-artist:hover {
+            cursor: pointer;
+            background-color: #447a96;
+            color: white;
+        }
+
+        .core-selected spotify-artist {
+            color: white;
+            background-color: #70abd2;
+        }
+        </style>
+
+        <core-menu
+            selectedModel="{{ selectedModel }}"
+            on-core-select="{{ setSelectedArtist }}">
+            <template repeat="{{ item in items }}">
+                <core-item>
+                    <spotify-artist
+                        artist="{{ item }}"
+                        selected="{{ { selected: selected } | tokenList }}"></spotify-artist>
+                </core-item>
+            </template>
+        </core-menu>
+
+        <core-ajax id="request"
+            url="{{ url }}"
+            params="{{ params }}"
+            handleAs="json"
+            response="{{ response }}"
+            on-core-response="{{ parse }}"></core-ajax>
+    </template>
+
+    <script>
+    Polymer({
+        url: 'https://api.spotify.com/v1/search',
+        query: '',
+        params: null,
+        ready: function() {
+            this.items = [];
+        },
+        queryChanged: function() {
+            this.params =  {
+                type: 'artist',
+                query: this.query,
+                offset: 0,
+                limit: 10,
+            }
+        },
+        setSelectedArtist: function() {
+            this.async(function() {
+                this.fire('selected-artist', { artist: this.selectedModel.item });
+            });
+        },
+        fetch: function() {
+            this.$.request.go();
+        },
+        parse: function() {
+            this.items = this.response.artists.items;
+            this.next = this.response.next;
+        }
+    })
+    </script>
+</polymer-element>

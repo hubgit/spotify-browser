@@ -1,0 +1,99 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/font-roboto/roboto.html">
+
+<link rel="import" href="spotify-artists.html">
+<link rel="import" href="spotify-related-artists.html">
+<link rel="import" href="spotify-albums.html">
+
+<polymer-element name="spotify-search">
+    <template>
+        <style>
+        :host {
+            font-family: Roboto, sans-serif;
+        }
+
+        [container] {
+            height: 100%;
+            width: 100%;
+            overflow-y: hidden;
+        }
+
+        [column] {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #selected-artist {
+            color: white;
+            background-color: #447a96;
+        }
+
+        .heading {
+            padding: 2px 5px;
+            color: #444;
+            background: #ddd;
+            font-weight: 100;
+        }
+        </style>
+
+        <div layout horizontal container>
+            <div layout vertical column on-selected-artist="{{ setSelectedArtist }}">
+                <template if="{{ !selectedArtist }}">
+                    <form on-submit="{{ searchArtists }}" layout horizontal>
+                        <input value="{{ query }}" flex>
+                        <button type="submit" id="submit">search</button>
+                    </form>
+
+                    <spotify-artists id="artists" query="{{ query }}"></spotify-artists>
+                </template>
+
+                <template if="{{ selectedArtist }}">
+                    <spotify-artist artist="{{ selectedArtist }}"
+                        id="selected-artist"></spotify-artist>
+
+                    <div class="heading">Related</div>
+
+                    <spotify-related-artists flex
+                        artist="{{ selectedArtist }}"></spotify-related-artists>
+                </template>
+            </div>
+
+            <div flex layout vertical column>
+                <div id="player">
+                    <div>{{ track.title }}</div>
+                    <audio id="audio"></audio>
+                </div>
+
+                <spotify-albums id="albums" flex
+                    artist="{{ selectedArtist }}"
+                    on-play-track="{{ play }}"></spotify-albums>
+            </div>
+        </div>
+    </template>
+
+    <script>
+    Polymer({
+        query: 'label:Warp',
+        ready: function() {
+            //tmp
+            this.async(function() {
+                this.$.submit.click();
+            })
+        },
+        searchArtists: function(event) {
+            event.preventDefault();
+            this.$.artists.fetch();
+        },
+        setSelectedArtist: function(event, details, sender) {
+            this.selectedArtist = details.artist;
+            this.query = null;
+        },
+        play: function(event, details, sender) {
+            this.track = details;
+            this.$.audio.setAttribute('src', details.preview_url);
+            this.$.audio.play();
+        }
+    })
+    </script>
+</polymer-element>

@@ -1,0 +1,74 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-item/core-item.html">
+
+<link rel="import" href="spotify-artist.html">
+
+<polymer-element name="spotify-related-artists" attributes="artist">
+    <template>
+        <style>
+        core-menu {
+            margin: 0;
+        }
+
+        spotify-artist:hover {
+            cursor: pointer;
+            background-color: #447a96;
+            color: white;
+        }
+
+        .core-selected spotify-artist {
+            color: white;
+            background-color: #70abd2;
+        }
+        </style>
+
+        <core-menu selectedModel="{{ selectedModel }}"
+            selected="{{ selectedIndex }}"
+            on-core-select="{{ setSelectedArtist }}">
+            <template repeat="{{ item in items }}">
+                <core-item>
+                    <spotify-artist
+                        artist="{{ item }}"
+                        selected="{{ { selected: selected } | tokenList }}"></spotify-artist>
+                </core-item>
+            </template>
+        </core-menu>
+
+        <core-ajax id="request"
+            url="{{ artist.href }}/related-artists"
+            handleAs="json"
+            response="{{ response }}"
+            on-core-response="{{ parse }}"></core-ajax>
+    </template>
+
+    <script>
+    Polymer({
+        ready: function() {
+            this.items = [];
+        },
+        artistChanged: function() {
+            this.selectedIndex = null;
+
+            if (this.artist) {
+                this.$.request.go();
+            }
+        },
+        setSelectedArtist: function(event, detail, sender) {
+            this.async(function() {
+                if (this.selectedModel) {
+                    this.fire('selected-artist', { artist: this.selectedModel.item });
+                }
+                this.selectedIndex = null;
+                this.parentNode.scrollTop = 0;
+            });
+        },
+        parse: function() {
+            this.items = this.response.artists;
+
+            this.next = this.response.next;
+        }
+    })
+    </script>
+</polymer-element>

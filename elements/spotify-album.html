@@ -1,0 +1,79 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="spotify-album" attributes="album selected">
+    <template>
+        <style>
+        :host {
+            display: block;
+            font-size: 80%;
+            width: 100%;
+            min-height: 64px;
+            background-size: 64px 64px;
+            background-repeat: no-repeat;
+            background-position: middle left;
+            padding-left: 74px;
+            min-width: 15em;
+            padding-right: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+            font-weight: 100;
+            margin-top: 10px;
+        }
+
+        #name {
+            padding: 10px;
+            height: 44px;
+            white-space: nowrap;
+        }
+
+        #tracks {
+            margin: -34px 10px 10px;
+        }
+
+        .track:hover {
+            color: #aaa;
+        }
+        </style>
+
+        <div on-tap="{{ fetchTracks }}">
+            <div id="name">{{ album.name }}</div>
+
+            <template if="{{ tracks.items }}">
+                <div id="tracks">
+                    <template repeat="{{ tracks.items }}">
+                        <div><a class="track" href="{{ external_urls.spotify }}" target="_blank">{{ name }}</a></div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <core-ajax id="request"
+            url="{{ album.href }}/tracks"
+            handleAs="json"
+            response="{{ tracks }}"
+            on-core-complete="{{ play }}"></core-ajax>
+    </template>
+
+    <script>
+    Polymer({
+        ready: function() {
+            var images = this.album.images.filter(function(image) {
+                return image.width == 64;
+            })
+
+            if (images.length) {
+                this.style.backgroundImage = 'url(' + images[0].url + ')';
+            }
+        },
+        fetchTracks: function() {
+            this.$.request.go();
+        },
+        play: function() {
+            this.fire('play-track', this.tracks.items[0]);
+        }
+    })
+    </script>
+</polymer-element>

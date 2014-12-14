@@ -1,0 +1,41 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="spotify-artist" attributes="artist">
+    <template>
+        <style>
+        :host {
+            display: block;
+            font-size: 80%;
+            width: 100%;
+            height: 64px;
+            background-size: 64px 64px;
+            background-repeat: no-repeat;
+            background-position: middle left;
+            padding-left: 74px;
+            min-width: 15em;
+            padding-right: 30px;
+        }
+
+        #name {
+            line-height: 64px;
+            white-space: nowrap;
+        }
+        </style>
+
+        <div id="name">{{ artist.name }}</div>
+    </template>
+
+    <script>
+    Polymer({
+        artistChanged: function() {
+            var images = this.artist.images.filter(function(image) {
+                return image.width == 64;
+            })
+
+            if (images.length) {
+                this.style.backgroundImage = 'url(' + images[0].url + ')';
+            }
+        }
+    })
+    </script>
+</polymer-element>

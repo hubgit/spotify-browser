@@ -1,0 +1,18 @@
+{
+  "name": "spotify-browser",
+  "version": "1.0.0",
+  "authors": [
+    "Alf Eaton <eaton.alf@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#~0.5.2",
+    "core-ajax": "Polymer/core-ajax#~0.5.2",
+    "core-menu": "Polymer/core-menu#~0.5.2",
+    "font-roboto": "Polymer/font-roboto#~0.5.2"
+  }
+}
